@@ -104,7 +104,7 @@ class Field(Mesh, Parameters):
         field = np.fromfile(f, dtype=dtype)
         return field.reshape(self.ny, self.nx)
 
-    def plot(self, log=False, cartesian=False, cmap='magma', **karg):
+    def plot(self, log=False, cartesian=False, cmap='magma', scale=5.2, **karg):
         """
         A layer for plt.imshow or pcolormesh function.
         if cartesian = True, pcolormesh is launched.
@@ -121,6 +121,8 @@ class Field(Mesh, Parameters):
             T,R = np.meshgrid(self.x, self.y)
             X = R * np.cos(T)
             Y = R * np.sin(T)
+            X *= scale
+            Y *= scale
             plt.pcolormesh(X, Y, data, cmap=cmap, **karg)
         else:
             T,R = np.meshgrid(self.x, self.y)
