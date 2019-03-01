@@ -87,13 +87,15 @@ class DiskPlot:
         plt.streamplot(vx_i.x * scale, vx_i.y * scale, vx_i.data, vy_i.data, density=3, linewidth=1, **karg)
     
     @staticmethod
-    def animate(data, plotFunction, **karg):
+    def animate(data, plotFunction, variable=None, fluid=None, **karg):
         FFMpegWriter = manimation.writers['ffmpeg']
         writer = FFMpegWriter(fps=15)
 
         with writer.saving(fig, "writer_test.mp4", 100):
             for frame in data:
-                plotFunction(data, karg)
+                if variable:
+                    frame = frame.fluids[fluid][variable]
+                plotFunction(frame, karg)
                 writer.grab_frame()
 
 
