@@ -92,9 +92,10 @@ class DiskPlot:
         writer = FFMpegWriter(fps=15)
 
         with writer.saving(fig, "writer_test.mp4", 100):
-            for frame in data:
+            for i, frame in enumerate(data):
                 if variable:
                     frame = frame.fluids[fluid][variable]
+                print("Animating frame " + str(i))
                 plotFunction(frame, karg)
                 writer.grab_frame()
 
