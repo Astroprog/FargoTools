@@ -1,11 +1,12 @@
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as manimation
 from .Tools import Tools
 
 class DiskPlot:
     @staticmethod
-    def plotScalar(field, log=False, cartesian=False, cmap='magma', scale=5.2, **karg):
+    def plotScalar(data, variable="density", log=False, cartesian=False, cmap='magma', scale=5.2, **karg):
         """
         A layer for plt.imshow or pcolormesh function.
         if cartesian = True, pcolormesh is launched.
@@ -36,7 +37,7 @@ class DiskPlot:
 
     #The same but for contours
     @staticmethod
-    def plotContours(field, log=False, cartesian=False, scale=5.2, **karg):
+    def plotContours(data, variable="density", log=False, cartesian=False, scale=5.2, **karg):
         if log:
             data = np.log10(field.data)
         else:
@@ -84,6 +85,16 @@ class DiskPlot:
         vx_i = Tools.interpolateToUniformGrid(vx_t, range_x, range_y)
         vy_i = Tools.interpolateToUniformGrid(vy_t, range_x, range_y)
         plt.streamplot(vx_i.x * scale, vx_i.y * scale, vx_i.data, vy_i.data, density=3, linewidth=1, **karg)
+    
+    @staticmethod
+    def animate(data, plotFunction, **karg):
+        FFMpegWriter = manimation.writers['ffmpeg']
+        writer = FFMpegWriter(fps=15)
+
+        with writer.saving(fig, "writer_test.mp4", 100):
+            for frame in data:
+                plotFunction(data, karg)
+                writer.grab_frame()
 
 
 
