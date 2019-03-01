@@ -6,7 +6,7 @@ from .Tools import Tools
 
 class DiskPlot:
     @staticmethod
-    def plotScalar(data, variable="density", log=False, cartesian=False, cmap='magma', scale=5.2, **karg):
+    def plotScalar(field, log=False, cartesian=False, cmap='magma', scale=5.2, **karg):
         """
         A layer for plt.imshow or pcolormesh function.
         if cartesian = True, pcolormesh is launched.
@@ -37,7 +37,7 @@ class DiskPlot:
 
     #The same but for contours
     @staticmethod
-    def plotContours(data, variable="density", log=False, cartesian=False, scale=5.2, **karg):
+    def plotContours(field, log=False, cartesian=False, scale=5.2, **karg):
         if log:
             data = np.log10(field.data)
         else:
