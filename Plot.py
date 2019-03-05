@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as manimation
 from .Tools import Tools
+from .Data import Data
+plt.rcParams['animation.ffmpeg_path'] = '/home/hd/hd_hd/hd_ea411/temp/FFmpeg/ffmpeg'
+
 
 class DiskPlot:
     @staticmethod
@@ -87,17 +90,15 @@ class DiskPlot:
         plt.streamplot(vx_i.x * scale, vx_i.y * scale, vx_i.data, vy_i.data, density=3, linewidth=1, **karg)
     
     @staticmethod
-    def animate(data, plotFunction, variable=None, fluid=None, **karg):
-        FFMpegWriter = manimation.writers['ffmpeg']
-        writer = FFMpegWriter(fps=15)
+    def animate(inputPath, frameRange, plotFunction, outputPath="frames/", variable=None, fluid=None, **karg):
 
-        with writer.saving(fig, "writer_test.mp4", 100):
-            for i, frame in enumerate(data):
-                if variable:
-                    frame = frame.fluids[fluid][variable]
-                print("Animating frame " + str(i))
-                plotFunction(frame, karg)
-                writer.grab_frame()
+        for i in frameRange:
+            print("Plotting frame " + str(i))
+            data = Data(frame=i, directory=inputPath, nfluids=2)
+            if variable:
+                data = data.fluids[fluid][variable]
+            plotFunction(data, **karg)
+            plt.savefig(outputPath + "fluid" + str(fluid) + variable + str(i) + ".png")
 
 
 
