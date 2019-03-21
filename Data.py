@@ -145,7 +145,7 @@ class Field(Mesh, Parameters):
             plt.contour(T, R, data, **karg)
 
 class Data:
-    def __init__(self, frame=0, nfluids=1, directory='', dtype='float64'):
+    def __init__(self, variable=None, staggered='c', frame=0, nfluids=1, directory='', dtype='float64'):
         if len(directory) > 1:
             if directory[-1] != '/':
                 directory += '/'
@@ -153,16 +153,19 @@ class Data:
         self.fluids = []
         for fluid in range(nfluids):
             fields = dict()
-            if fluid == 0:
-                fields["density"] = Field("gasdens" + str(frame) + ".dat", directory=directory)
-                fields["energy"] = Field("gasenergy" + str(frame) + ".dat", directory=directory)
-                fields["vx"] = Field("gasvx" + str(frame) + ".dat", staggered='x', directory=directory)
-                fields["vy"] = Field("gasvy" + str(frame) + ".dat", staggered='y', directory=directory)
-            else:
-                fields["density"] = Field("dust" + str(fluid) + "dens" + str(frame) + ".dat", directory=directory)
-                fields["energy"] = Field("dust" + str(fluid) + "energy" + str(frame) + ".dat", directory=directory)
-                fields["vx"] = Field("dust" + str(fluid) + "vx" + str(frame) + ".dat", staggered='x', directory=directory)
-                fields["vy"] = Field("dust" + str(fluid) + "vy" + str(frame) + ".dat", staggered='y', directory=directory)
+            if variable not None:
+                fields[variable] = Field(variable + str(frame) + ".dat", staggered='c', directory=directory)
+            else: 
+                if fluid == 0:
+                    fields["density"] = Field("gasdens" + str(frame) + ".dat", directory=directory)
+                    fields["energy"] = Field("gasenergy" + str(frame) + ".dat", directory=directory)
+                    fields["vx"] = Field("gasvx" + str(frame) + ".dat", staggered='x', directory=directory)
+                    fields["vy"] = Field("gasvy" + str(frame) + ".dat", staggered='y', directory=directory)
+                else:
+                    fields["density"] = Field("dust" + str(fluid) + "dens" + str(frame) + ".dat", directory=directory)
+                    fields["energy"] = Field("dust" + str(fluid) + "energy" + str(frame) + ".dat", directory=directory)
+                    fields["vx"] = Field("dust" + str(fluid) + "vx" + str(frame) + ".dat", staggered='x', directory=directory)
+                    fields["vy"] = Field("dust" + str(fluid) + "vy" + str(frame) + ".dat", staggered='y', directory=directory)
             self.fluids.append(fields)
 
 
