@@ -153,8 +153,21 @@ class Data:
         self.fluids = []
         for fluid in range(nfluids):
             fields = dict()
-            if variable not None:
-                fields[variable] = Field(variable + str(frame) + ".dat", staggered='c', directory=directory)
+            if variable:
+                if fluid == 0:
+                    if variable == "density":
+                        fields["density"] = Field("gasdens" + str(frame) + ".dat", directory=directory)
+                    elif variable == "energy":
+                        fields["energy"] = Field("gasenergy" + str(frame) + ".dat", directory=directory)
+                    else:
+                        fields[variable] = Field("gas" + variable + str(frame) + ".dat", staggered='c', directory=directory)
+                else:
+                    if variable == "density":
+                        fields["density"] = Field("dust" + str(fluid) + "dens" + str(frame) + ".dat", directory=directory)
+                    elif variable == "energy":
+                        fields["energy"] = Field("dust" + str(fluid) + "energy" + str(frame) + ".dat", directory=directory)
+                    else:
+                        fields[variable] = Field("dust" + str(fluid) + variable + str(frame) + ".dat", staggered='c', directory=directory)
             else: 
                 if fluid == 0:
                     fields["density"] = Field("gasdens" + str(frame) + ".dat", directory=directory)
