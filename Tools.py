@@ -1,6 +1,9 @@
 import copy
 import numpy as np
 import scipy.interpolate
+from astropy import constants as const
+from astropy import units as u
+from astropy.modeling.blackbody import blackbody_lambda, blackbody_nu
 
 class Tools:
     @staticmethod
@@ -182,3 +185,39 @@ class Tools:
         newField.x = x_space
         newField.y = y_space
         return newField
+
+    @staticmethod
+    def getOpticalDepth(field, incl=0.0, opacity=3.0*u.cm**2 / u.g, scale=1.0, stellarMass=1.0):
+        newField = copy.deepcopy(field)
+        rho = newField.data * stellarMass * u.M_sun / (scale * u.AU)**2
+        rho = rho.to(u.g / u.cm**2)
+        rho *= opacity / np.cos(incl)
+        newField.data = rho
+        return newField
+
+    @staticmethod
+    def getSoundSpeed(aspectRatio, flaringIndex, r, stellarMass=1.0, scale=1.0):
+        cs = aspectRatio * r**flaringIndex * np.sqrt(const.GM_sun.cgs * stellarMass / (r * scale * const.au.cgs))
+        return cs
+
+    @staticmethod
+    def getTemperaturesFargo(aspectRatio, flaringIndex, r, stellarMass=1.0, scale=1.0):
+        cs = Tools.getSoundSpeed(aspectRatio, flaringIndex, r, stellarMass=stellarMass, scale=scale)
+        return (2.4 * const.m_p.cgs / const.k_B.cgs * cs**2).to(u.K)
+
+    @staticmethod
+    def getTemperaturesLuminosity(luminosity, phi, r, scale=1.0):
+        return ((phi * luminosity / (8 * np.pi * (r * scale * const.au.cgs)**2 * const.sigma_sb.cgs))**0.25).to(u.K)
+
+    @staticmethod
+    def getIntensityMap(nu, tau, T):
+        I_nu = copy.deepcopy(tau)
+        T = np.tile(T, (tau.data.shape[1], 1)).T
+        B_nu = blackbody_nu(nu, T)
+        I_nu.data = (1.0 - np.exp(-tau.data)) * B_nu
+        return I_nu
+
+
+
+
+
