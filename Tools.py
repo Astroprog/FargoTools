@@ -4,6 +4,7 @@ import scipy.interpolate
 from astropy import constants as const
 from astropy import units as u
 from astropy.modeling.blackbody import blackbody_lambda, blackbody_nu
+from simdata import data, grid
 
 class Tools:
     @staticmethod
@@ -160,16 +161,19 @@ class Tools:
         return vx_t, vy_t
 
     @staticmethod
-    def polarCoordsToCartesian(field):
-        T, R = np.meshgrid(field.x, field.y)
-        X = R * np.cos(T)
-        Y = R * np.sin(T)
+    def polarCoordsToCartesian(field, interfaces=True):
+        if interfaces:
+            T, R = np.meshgrid(field.grid.get_interfaces("phi"), field.grid.get_interfaces("r"))
+        else:
+            T, R = np.meshgrid(field.grid.get_centers("phi"), field.grid.get_centers("r"))
+        X = R * np.cos(T * u.rad)
+        Y = R * np.sin(T * u.rad)
         return X, Y
 
     @staticmethod
     def interpolateToUniformGrid(field, x_range, y_range):
         newField = copy.deepcopy(field)
-        x, y = Tools.polarCoordsToCartesian(newField)
+        x, y = Tools.polarCoordsToCartesian(newField, interfaces=False)
         x = np.ravel(x)
         y = np.ravel(y)
         data = np.ravel(newField.data)
@@ -180,10 +184,9 @@ class Tools:
         grid_x, grid_y = np.meshgrid(np.linspace(*x_range), np.linspace(*y_range))
         newData = scipy.interpolate.griddata(points, data, (grid_x, grid_y))
         grid_r = np.sqrt(grid_x**2 + grid_y**2)
-        newData[grid_r < np.min(field.y)] = np.nan
+        newData[grid_r < np.min(field.grid.get_centers("r"))] = np.nan
         newField.data = newData
-        newField.x = x_space
-        newField.y = y_space
+        newField.grid = grid.RegularGrid(x1_i=x_space, x2_i=y_space)
         return newField
 
     @staticmethod
